@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from typing import Optional
 
+from streamlit_echarts import st_echarts
 import altair as alt
 import polars as pl
 
@@ -231,3 +232,103 @@ class Charts:
                 height=300,
             )
         )
+
+    @classmethod
+    def daily_revenue_heatmap(cls, height: int=200):
+        _data = (
+            Stats.receipts
+            .with_columns(
+                pl.col("timestamp").dt.date(),
+            )
+            .group_by("timestamp")
+            .agg(
+                pl.col("gross_sales").sum(),
+            )
+        )
+
+        data = [
+            (row[0].strftime("%Y-%m-%d"), row[1])
+            for row in _data.iter_rows()
+        ]
+
+        options = {
+            "tooltip": {"position": "top"},
+            "visualMap": {
+                "min": _data["gross_sales"].min(),
+                "max": _data["gross_sales"].max(),
+                "type": "piecewise",
+                "calculable": True,
+                "orient": "horizontal",
+                "left": "center",
+                "top": "top",
+            },
+            "calendar": {
+                "range": "2025", 
+                "cellSize": ["auto", 15],
+                "left": 30,
+                "right": 10,
+                "itemStyle": {
+                    "borderWidth": 1,
+                }
+            },
+            "series": [
+                {
+                    "type": "heatmap",
+                    "coordinateSystem": "calendar",
+                    "calendarIndex": 0,
+                    "data": data,
+                }
+            ]
+        }
+
+        return st_echarts(options, height=f"{height}px", key="echarts")
+
+    @classmethod
+    def daily_load_count_heatmap(cls, height: int=200):
+        _data = (
+            Stats.receipts
+            .with_columns(
+                pl.col("timestamp").dt.date(),
+            )
+            .group_by("timestamp")
+            .agg(
+                pl.col("n_fold").sum().alias("load_count"),
+            )
+        )
+
+        data = [
+            (row[0].strftime("%Y-%m-%d"), row[1])
+            for row in _data.iter_rows()
+        ]
+
+        options = {
+            "tooltip": {"position": "top"},
+            "visualMap": {
+                "min": _data["load_count"].min(),
+                "max": _data["load_count"].max(),
+                "type": "piecewise",
+                "calculable": True,
+                "orient": "horizontal",
+                "left": "center",
+                "top": "top",
+            },
+            "calendar": {
+                "range": "2025", 
+                "cellSize": ["auto", 15],
+                "left": 30,
+                "right": 10,
+                "itemStyle": {
+                    "borderWidth": 1,
+                }
+            },
+            "series": [
+                {
+                    "type": "heatmap",
+                    "coordinateSystem": "calendar",
+                    "calendarIndex": 0,
+                    "data": data,
+                }
+            ]
+        }
+
+        return st_echarts(options, height=f"{height}px", key="echarts")

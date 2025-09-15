@@ -4,6 +4,7 @@ from cleannest.plotting import Charts, Stats
 from cleannest.database import CleannestDatabase
 
 
+
 # Load data
 @st.cache_resource
 def load_db():
@@ -124,6 +125,9 @@ with st.container(border=True, vertical_alignment="center"):
                 + Charts.daily_rolling_revenue(filtered_df, window_size),
                 use_container_width=True,
             )
+
+            Charts.daily_revenue_heatmap()
+
         case "Load Count":
             st.altair_chart(
                 Charts.daily_total_load_count(
@@ -132,6 +136,9 @@ with st.container(border=True, vertical_alignment="center"):
                 )
                 + Charts.daily_rolling_load_count(filtered_df, window_size)
             )
+
+            Charts.daily_load_count_heatmap()
+
 
 st.dataframe(
     filtered_df,
