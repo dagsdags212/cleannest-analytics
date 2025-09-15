@@ -295,13 +295,13 @@ def load_expense_data() -> pl.DataFrame:
     sheets = {
         "capital_expenses": "A1:H108",
         "Jan2025": "A1:H4",
-        "Feb2025": "A1:H30",
+        "Feb2025": "A1:H25",
         "Mar2025": "A1:H27",
         "Apr2025": "A1:H41",
         "May2025": "A1:H30",
         "June2025": "A1:H33",
         "July2025": "A1:H41",
-        "Aug2025": "A1:H27",
+        "Aug2025": "A1:H38",
     }
     credentials = "credentials.json"
     url = "https://docs.google.com/spreadsheets/d/1PmYbcvwLeMfUiV9WDSWSfo_J45qzOXHEgYvvFOQzygA/edit"
