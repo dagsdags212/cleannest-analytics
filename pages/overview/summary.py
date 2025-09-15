@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import date
 import duckdb
 import polars as pl
 import streamlit as st
@@ -77,6 +78,28 @@ total_cost = expenses_df["total_cost"].sum()
 
 "# Overview"
 
+with st.container(border=True, horizontal=True, horizontal_alignment="center"):
+    # Days since opening
+    operating_days = (date.today() - date(2025, 1, 18)).days
+    st.metric(
+        label="Operating Days",
+        value=operating_days,
+    )
+
+    # Number of unique clients
+    st.metric(
+        label="Unique Clients",
+        value=customers_df.height,
+    )
+
+    # Total transactions
+    st.metric(
+        label="Total Transactions",
+        value=f"{receipts_df.height:,}"
+    )
+
+
+"## Cash Flow"
 
 df = (
     mean_monthly_revenue.with_columns(
@@ -96,12 +119,18 @@ df = (
     )
 )
 
-base = alt.Chart(df).encode(alt.X("yearmonth(timestamp):O").title("Date"))
+base = alt.Chart(df).encode(
+    alt.X("yearmonth(timestamp):O").title("Date")
+)
 
-sales_chart = base.mark_bar(color="seagreen", opacity=0.9).encode(alt.Y("gross_sales"))
-expense_chart = base.mark_bar(color="firebrick", opacity=0.9).encode(alt.Y("total_cost_neg"))
+sales_chart = base.mark_bar(color="seagreen", opacity=0.9).encode(
+    alt.Y("gross_sales").title("")
+)
+expense_chart = base.mark_bar(color="firebrick", opacity=0.9).encode(
+    alt.Y("total_cost_neg").title("")
+)
 net_gross_chart = base.mark_point(size=100, color="gray", fill="white").encode(
-    alt.Y("net_gross_amt")
+    alt.Y("net_gross_amt").title("")
 )
 
 _revenue_expense_chart = alt.layer(
@@ -136,12 +165,26 @@ with st.container(horizontal=True, horizontal_alignment="center", width="stretch
 
     st.altair_chart(_revenue_expense_chart)
 
+def color_values(val):
+    if val > 0: 
+        color = "seagreen"
+    elif val < 0: 
+        color = "firebrick"
+    else: 
+        color = "gray"
+    
+    return f"color: white; background-color: {color}"
+
+df_styled = df.sort("timestamp", descending=True).to_pandas().style.applymap(color_values, subset=["net_gross_amt"])
+
+"## Balance Sheet"
 st.dataframe(
-    df.sort("timestamp", descending=True),
+    df_styled,
+    hide_index=True,
     column_order=[
         "timestamp",
         "gross_sales",
-        "total_cost",
+        "total_cost_neg",
         "net_gross_amt",
         "daily_revenue",
     ],
@@ -150,7 +193,7 @@ st.dataframe(
             "Date", format="MMMM YYYY", pinned=True
         ),
         "gross_sales": st.column_config.NumberColumn("Total Revenue"),
-        "total_cost": st.column_config.NumberColumn("Total Cost"),
+        "total_cost_neg": st.column_config.NumberColumn("Total Cost"),
         "net_gross_amt": st.column_config.NumberColumn("Net Gross"),
         "daily_revenue": st.column_config.AreaChartColumn("Daily Revenue"),
     },
