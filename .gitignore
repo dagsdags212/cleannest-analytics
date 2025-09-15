@@ -10,3 +10,5 @@ data/
 # Secrets
 credentials.json
 secrets.toml
+
+__pycache__
