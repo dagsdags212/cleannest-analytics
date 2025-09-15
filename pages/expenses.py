@@ -21,7 +21,7 @@ def load_all_expenses():
         "May2025": 30,
         "June2025": 33,
         "July2025": 41,
-        "Aug2025": 27,
+        "Aug2025": 38,
     }
 
     _dfs = []
@@ -58,7 +58,7 @@ df = load_all_expenses()
 df["date"] = pd.to_datetime(df["date"])
 df["quantity"] = df["quantity"].fillna(1).astype(int)
 df["total_cost"] = df["total_cost"].str.replace(",", "").fillna(0.0).astype(float)
-df = pl.from_pandas(df)
+df = pl.from_pandas(df).drop_nulls(subset="item").sort("date", descending=True)
 
 
 # Total cost by month since opening
@@ -68,7 +68,7 @@ total_monthly_costs_chart = (
     .transform_filter(alt.FieldGTEPredicate(field="date", gte=date(2025, 1, 1)))
     .mark_bar()
     .encode(
-        alt.Y("yearmonth(date):O", sort="-y").title("Month-Year"),
+        alt.Y("yearmonth(date):O", sort="y").title("Month-Year"),
         alt.X("sum(total_cost):Q").title("Total Cost (PHP)"),
         alt.Color("category", legend=None),
         opacity=alt.condition(month_selection, alt.value(1), alt.value(0.2)),
@@ -97,7 +97,7 @@ with st.container(
     horizontal_alignment="distribute",
 ):
     st.metric(
-        label="Total Cost (PHP)",
+        label="Total Cost (Since Open)",
         value=f"{df['total_cost'].sum():,.2f}",
     )
 
@@ -106,6 +106,7 @@ with st.container(
     latest_month_total_cost = df.filter(pl.col("date") >= latest_month)[
         "total_cost"
     ].sum()
+
     st.metric(
         label=f"Total Cost ({latest_month.strftime('%B')})",
         value=f"{latest_month_total_cost:,.2f}",
