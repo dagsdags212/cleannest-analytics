@@ -5,16 +5,16 @@ st.set_page_config(
 )
 
 pages = {
-    "Summary": [
-        st.Page("pages/overview.py", title="Overview")
+    "Overview": [
+        st.Page("pages/overview/summary.py", title="Summary"),
+        st.Page("pages/overview/pricing.py", title="Pricing"),
+        st.Page("pages/overview/receipts.py", title="Transactions"),
+        st.Page("pages/overview/clients.py", title="Clients"),
     ],
-    "Dashboards": [
+    "Analytics": [
         st.Page("pages/revenue.py", title="Revenue"),
-        st.Page("pages/customers.py", title="Customers"),
+        st.Page("pages/retention.py", title="Retention"),
         st.Page("pages/expenses.py", title="Expenses"),
-    ],
-    "Order Tracking": [
-        st.Page("pages/orders.py", title="Order Tracking"),
     ],
     "Database": [
         st.Page("pages/database.py", title="Database Explorer"),
