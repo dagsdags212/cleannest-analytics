@@ -17,5 +17,5 @@ class CleannestDatabase:
         return self.con.execute(query).pl()
 
     def fetch_expenses(self):
-        query = "SELECT * FROM expenses"
+        query = "SELECT * FROM expenses WHERE item_name IS NOT NULL"
         return self.con.execute(query).pl()
