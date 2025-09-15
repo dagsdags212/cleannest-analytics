@@ -1,0 +1,12 @@
+# pixi environments
+.pixi
+
+# Prototyping
+dev.py
+
+# Data
+data/
+
+# Secrets
+credentials.json
+secrets.toml
