@@ -8,7 +8,7 @@ import altair as alt
 
 @st.cache_resource
 def connect_db():
-    db_path = Path(__file__).parent.parent / "cleannest" / "db" / "main.db"
+    db_path = Path(__file__).parent.parent.parent / "cleannest" / "db" / "main.db"
     con = duckdb.connect(db_path)
     return con
 
