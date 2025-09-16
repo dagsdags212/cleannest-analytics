@@ -16,6 +16,9 @@ pages = {
         st.Page("pages/retention.py", title="Retention"),
         st.Page("pages/expenses.py", title="Expenses"),
     ],
+    "Orders": [
+        st.Page("pages/order_form.py", title="Order Form"),
+    ],
     "Database": [
         st.Page("pages/database.py", title="Database Explorer"),
     ],

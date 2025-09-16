@@ -1,21 +1,9 @@
 from pathlib import Path
-from datetime import date
 
-import pandas as pd
 import polars as pl
 import duckdb
-from pydantic import BaseModel
 
-
-class ExpenseItem(BaseModel):
-    date: date
-    item_name: str
-    note: str | None = None
-    category: str | None = None
-    subcategory: str | None = None
-    quantity: int | None = None
-    unit: str | None = None
-    total_cost: float | int = 0.0
+from cleannest.models import Item
 
 
 def _load_customers_from_csv(fp: Path) -> pl.DataFrame:
@@ -312,6 +300,44 @@ def load_expense_data() -> pl.DataFrame:
 
     return pl.concat(_expenses)
 
+def item_list():
+    return [
+        Item(name="Ariel Detergent", category="soap", cost=18.0),
+        Item(name="Downey Fabcon", category="soap", cost=12.0),
+        Item(name="Zonrox Colorsafe Bleach", category="soap", cost=6.0),
+        Item(name="Regular Wash", category="service", cost=65.0),
+        Item(name="TITAN Wash", category="service", cost=80.0),
+        Item(name="Hand Wash", category="service", cost=45.0),
+        Item(name="Regular Dry", category="service", cost=65.0),
+        Item(name="TITAN Dry", category="service", cost=90.0),
+        Item(name="Extra Regular Dry", category="service", cost=17.0),
+        Item(name="Extra TITAN Dry", category="service", cost=17.0),
+        Item(name="Fold", category="service", cost=35.0),
+    ]
+
+def build_items_table(db) -> None:
+    query = """
+    CREATE OR REPLACE TABLE items (
+        id UUID PRIMARY KEY DEFAULT uuidv4(),
+        name VARCHAR(255) NOT NULL,
+        category VARCHAR(255) NOT NULL,
+        cost DOUBLE NOT NULL,
+        created_at TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP NOT NULL,
+        deleted_at TIMESTAMP
+    );
+    """
+    with duckdb.connect(database=db, read_only=False) as con:
+        # Initialize item tables
+        con.execute(query)
+
+        # Insert individual items
+        for item in item_list():
+            con.execute(f"""
+            INSERT INTO items (name, category, cost, created_at, updated_at) 
+            VALUES ('{item.name}', '{item.category}', {item.cost}, '{item.created_at}', '{item.updated_at}');
+            """)
+
 
 if __name__ == "__main__":
     print("Loading customer data...")
@@ -325,11 +351,14 @@ if __name__ == "__main__":
 
     db = "cleannest/db/main.db"
 
-    print("Writing customer data...")
+    print("Generating `customer` table...")
     df2db(customers_df, db, "customers")
 
-    print("Writing receipt data...")
+    print("Generating `receipt` table...")
     df2db(receipts_df, db, "receipts")
 
-    print("Writing expense data...")
+    print("Generating `expense` table...")
     df2db(expenses_df, db, "expenses")
+
+    print("Generating `items` table...")
+    build_items_table(db)
