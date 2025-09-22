@@ -3,7 +3,7 @@ from pathlib import Path
 import polars as pl
 import duckdb
 
-from cleannest.models import Item
+from models import Item
 
 
 def _load_customers_from_csv(fp: Path) -> pl.DataFrame:
@@ -290,6 +290,7 @@ def load_expense_data() -> pl.DataFrame:
         "June2025": "A1:H33",
         "July2025": "A1:H41",
         "Aug2025": "A1:H38",
+        "Sep2025": "A1:H22",
     }
     credentials = "credentials.json"
     url = "https://docs.google.com/spreadsheets/d/1PmYbcvwLeMfUiV9WDSWSfo_J45qzOXHEgYvvFOQzygA/edit"
